@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>game</title>
+    <style>
+        canvas {
+            border: 1px solid wheat;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="id-canvas" width="400" height="300"></canvas>
+    <script>
+        const imageFromPath = (path) => {
+            let img = new Image()
+            img.src = path
+            return img
+        }
+
+        const Paddle = () => {
+            let image = imageFromPath('paddle.png')
+            let o = {
+                image: image,
+                x: 100,
+                y: 200,
+                speed: 3,
+            }
+            o.moveLeft = () => {
+                o.x -= o.speed
+            }
+            o.moveRight = () => {
+                o.x += o.speed
+            }
+            o.collide = (imgObj) => {
+
+            }
+            return o
+        }
+
+        const Ball = () => {
+            let image = imageFromPath('ball.png')
+            let o = {
+                image: image,
+                x: 100,
+                y: 100,
+                speedX: 3,
+                speedY: 3,
+                fired: false
+            }
+            o.fire = () => {
+                o.fired = !o.fired
+            }
+            o.move = () => {
+                if (o.fired) {
+                    if (o.x < 0 || o.x > 400) {
+                        o.speedX *= -1
+                    }
+                    if (o.y < 0 || o.y > 300) {
+                        o.speedY *= -1
+                    }
+                    o.x += o.speedX
+                    o.y += o.speedY
+                }
+            }
+            return o
+        }
+
+        const Game = () => {
+            let canvas = document.querySelector('#id-canvas')
+            let context = canvas.getContext('2d')
+            let g = {
+                canvas: canvas,
+                context: context,
+                actions: {},
+                pressKeys: {},
+            }
+
+            g.drawImage = (imgObj) => {
+                g.context.drawImage(imgObj.image, imgObj.x, imgObj.y)
+            }
+
+            // events
+            window.addEventListener('keydown', (e) => {
+                g.pressKeys[e.key] = true
+            })
+
+            window.addEventListener('keyup', (e) => {
+                g.pressKeys[e.key] = false
+            })
+            // register events
+            g.registerAction = (key, callback) => {
+                g.actions[key] = callback
+            }
+            // timer
+            setInterval(() => {
+                // events
+                let actions = Object.keys(g.actions)
+                for (let i = 0; i < actions.length; i++) {
+                    let key = actions[i]
+                    if (g.pressKeys[key]) {
+                        g.actions[key]()
+                    }
+                }
+                // update x and y
+                g.update()
+                // clear
+                context.clearRect(0, 0, 400, 300)
+                // draw
+                g.draw()
+            }, 1000 / 165)
+
+            return g
+        }
+
+        const _main = () => {
+            let game = Game()
+
+            let paddle = Paddle()
+            let ball = Ball()
+
+            game.registerAction('a', () => {
+                paddle.moveLeft()
+            })
+            game.registerAction('d', () => {
+                paddle.moveRight()
+            })
+            game.registerAction('f', () => {
+                ball.fire()
+            })
+
+            game.update = () => {
+                ball.move()
+                // 相撞
+                if (paddle.collide(ball)) {
+                    ball.speedY *= -1
+                }
+            }
+
+            game.draw = () => {
+                game.drawImage(paddle)
+                game.drawImage(ball)
+            }
+
+
+        }
+
+        _main()
+    </script>
+</body>
+
+</html>
