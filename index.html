@@ -23,11 +23,12 @@
         }
 
         const Paddle = () => {
+            aimage = imageFromPath('paddle.png')
             let image = imageFromPath('paddle.png')
             let o = {
                 image: image,
                 x: 100,
-                y: 200,
+                y: 250,
                 speed: 3,
             }
             o.moveLeft = () => {
@@ -37,7 +38,14 @@
                 o.x += o.speed
             }
             o.collide = (imgObj) => {
+                if (imgObj.y + imgObj.image.height > o.y) {
+                    if (imgObj.x > o.x && imgObj.x < o.x + o.image.width) {
+                        console.log('撞了')
+                        return true
+                    }
+                }
 
+                return false
             }
             return o
         }
@@ -48,12 +56,12 @@
                 image: image,
                 x: 100,
                 y: 100,
-                speedX: 3,
-                speedY: 3,
+                speedX: 2,
+                speedY: 2,
                 fired: false
             }
             o.fire = () => {
-                o.fired = !o.fired
+                o.fired = true
             }
             o.move = () => {
                 if (o.fired) {
