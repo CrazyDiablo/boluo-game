@@ -11,136 +11,39 @@
             border: 1px solid wheat;
         }
     </style>
+    <script src="game.js"></script>
+    <script src="ball.js"></script>
+    <script src="paddle.js"></script>
+    <script src="block.js"></script>
+    <script src="util.js"></script>
+    <script src="level.js"></script>
 </head>
 
 <body>
     <canvas id="id-canvas" width="400" height="300"></canvas>
     <script>
-        const imageFromPath = (path) => {
-            let img = new Image()
-            img.src = path
-            return img
-        }
-
-        const Paddle = () => {
-            aimage = imageFromPath('paddle.jpg')
-            let image = imageFromPath('paddle.jpg')
-            let o = {
-                image: image,
-                x: 100,
-                y: 250,
-                speed: 3,
+        const loadLevel = (n) => {
+            n = n - 1
+            let blocks = []
+            let level = levels[n]
+            for (let i = 0; i < level.length; i++) {
+                let p = level[i]
+                let b = Block(p)
+                blocks.push(b)
             }
-            o.moveLeft = () => {
-                o.x -= o.speed
-            }
-            o.moveRight = () => {
-                o.x += o.speed
-            }
-            o.collide = (imgObj) => {
-                if (imgObj.y + imgObj.image.height > o.y) {
-                    if (imgObj.x > o.x && imgObj.x < o.x + o.image.width) {
-                        console.log('撞了')
-                        return true
-                    }
-                }
-
-                return false
-            }
-            return o
-        }
-
-        const Block = () => {
-            let image = imageFromPath('block.jpg')
-            let o = {
-                image: image,
-                x: 100,
-                y: 100,
-            }
-            return o
-        }
-
-        const Ball = () => {
-            let image = imageFromPath('ball.jpg')
-            let o = {
-                image: image,
-                x: 100,
-                y: 100,
-                speedX: 2,
-                speedY: 2,
-                fired: false
-            }
-            o.fire = () => {
-                o.fired = true
-            }
-            o.move = () => {
-                if (o.fired) {
-                    if (o.x < 0 || o.x > 400) {
-                        o.speedX *= -1
-                    }
-                    if (o.y < 0 || o.y > 300) {
-                        o.speedY *= -1
-                    }
-                    o.x += o.speedX
-                    o.y += o.speedY
-                }
-            }
-            return o
-        }
-
-        const Game = () => {
-            let canvas = document.querySelector('#id-canvas')
-            let context = canvas.getContext('2d')
-            let g = {
-                canvas: canvas,
-                context: context,
-                actions: {},
-                pressKeys: {},
-            }
-
-            g.drawImage = (imgObj) => {
-                g.context.drawImage(imgObj.image, imgObj.x, imgObj.y)
-            }
-
-            // events
-            window.addEventListener('keydown', (e) => {
-                g.pressKeys[e.key] = true
-            })
-
-            window.addEventListener('keyup', (e) => {
-                g.pressKeys[e.key] = false
-            })
-            // register events
-            g.registerAction = (key, callback) => {
-                g.actions[key] = callback
-            }
-            // timer
-            setInterval(() => {
-                // events
-                let actions = Object.keys(g.actions)
-                for (let i = 0; i < actions.length; i++) {
-                    let key = actions[i]
-                    if (g.pressKeys[key]) {
-                        g.actions[key]()
-                    }
-                }
-                // update x and y
-                g.update()
-                // clear
-                context.clearRect(0, 0, 400, 300)
-                // draw
-                g.draw()
-            }, 1000 / 165)
-
-            return g
+            return blocks
         }
 
         const _main = () => {
             let game = Game()
+            let paused = false
 
             let paddle = Paddle()
             let ball = Ball()
-            let block = Block()
+
+            let blocks = loadLevel(3)
+
+
 
             game.registerAction('a', () => {
                 paddle.moveLeft()
@@ -151,22 +54,49 @@
             game.registerAction('f', () => {
                 ball.fire()
             })
+            game.registerAction('q', () => {
+                paused = !paused
+            })
+            game.registerAction('1', () => {
+                blocks = loadLevel(1)
+            })
+            game.registerAction('2', () => {
+                blocks = loadLevel(2)
+            })
+            game.registerAction('3', () => {
+                blocks = loadLevel(3)
+            })
 
             game.update = () => {
+                if (paused) {
+                    return
+                }
+
                 ball.move()
                 // 相撞
                 if (paddle.collide(ball)) {
-                    ball.speedY *= -1
+                    ball.反弹()
+                }
+                for (let i = 0; i < blocks.length; i++) {
+                    let block = blocks[i]
+                    if (block.collide(ball)) {
+                        block.kill()
+                        ball.反弹()
+                    }
                 }
             }
 
             game.draw = () => {
                 game.drawImage(paddle)
                 game.drawImage(ball)
-                game.drawImage(block)
+                for (let i = 0; i < blocks.length; i++) {
+                    let block = blocks[i]
+                    if (block.alive) {
+                        game.drawImage(block)
+                    }
+                }
+
             }
-
-
         }
 
         _main()
