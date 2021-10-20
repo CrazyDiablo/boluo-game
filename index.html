@@ -23,8 +23,8 @@
         }
 
         const Paddle = () => {
-            aimage = imageFromPath('paddle.png')
-            let image = imageFromPath('paddle.png')
+            aimage = imageFromPath('paddle.jpg')
+            let image = imageFromPath('paddle.jpg')
             let o = {
                 image: image,
                 x: 100,
@@ -50,8 +50,18 @@
             return o
         }
 
+        const Block = () => {
+            let image = imageFromPath('block.jpg')
+            let o = {
+                image: image,
+                x: 100,
+                y: 100,
+            }
+            return o
+        }
+
         const Ball = () => {
-            let image = imageFromPath('ball.png')
+            let image = imageFromPath('ball.jpg')
             let o = {
                 image: image,
                 x: 100,
@@ -130,6 +140,7 @@
 
             let paddle = Paddle()
             let ball = Ball()
+            let block = Block()
 
             game.registerAction('a', () => {
                 paddle.moveLeft()
@@ -152,6 +163,7 @@
             game.draw = () => {
                 game.drawImage(paddle)
                 game.drawImage(ball)
+                game.drawImage(block)
             }
 
 
