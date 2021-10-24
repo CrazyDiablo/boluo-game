@@ -21,6 +21,7 @@
 
 <body>
     <canvas id="id-canvas" width="400" height="300"></canvas>
+    <input id='id-input' type="range">
     <script>
         const loadLevel = (n) => {
             n = n - 1
@@ -43,7 +44,10 @@
 
             let blocks = loadLevel(3)
 
-
+            let fpsController = document.querySelector('#id-input')
+            fpsController.addEventListener('change', (e) => {
+                window.fps = e.target.value
+            })
 
             game.registerAction('a', () => {
                 paddle.moveLeft()
@@ -95,7 +99,6 @@
                         game.drawImage(block)
                     }
                 }
-
             }
         }
 
